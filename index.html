@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>光的反射与平面镜成像模拟器 (全功能适配版)</title>
+  <title>光的反射与平面镜成像模拟器 (全语言修复版)</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; touch-action: manipulation; }
     body {
@@ -191,7 +191,7 @@
 
       <div class="panel-group" id="letterDistGroup" style="display: none;">
         <label id="lblDragHint">🖐️ 交互提示:</label>
-        <div style="font-size: 13px; color: #ec4899; font-weight: 600; line-height: 1.5;">
+        <div style="font-size: 13px; color: #ec4899; font-weight: 600; line-height: 1.5;" id="txtRotateHint">
           🔄 按住 <b>字母 F 顶部手柄</b> 可任意旋转字母！镜像虚像将精准同步对称旋转！
         </div>
         <button id="btnBlocker" onclick="toggleBlocker()" style="margin-top:8px; padding:10px; border-radius:8px; border:2px solid #ec4899; background:#fff; color:#ec4899; font-weight:bold; cursor:pointer;">
@@ -215,13 +215,14 @@
       <p class="copyright-text">
         © 2026 Pon-888 &lt;PON KWIT FONG_KPM&gt; All Rights Reserved.
       </p>
-      <p class="copyright-sub">
+      <p class="copyright-sub" id="footerSub">
         🛡️ 本模拟器算法与交互设计受著作权法保护，仅供教育与教学探究使用。
       </p>
     </div>
   </footer>
 
   <script>
+    // 补全所有 4 种语言数据，彻底解决切换语言变白屏的问题
     const translations = {
       zh: {
         title: "光的反射与平面镜成像模拟器",
@@ -235,7 +236,13 @@
         btnRough: "🧱 凹凸不平表面 (漫反射)",
         lblTools: "3. 物理测量工具箱:",
         btnNormal: "📏 显示参考法线",
+        btnDragProtractor: "📐 自由拖拽/旋转量角器",
+        btnDragRuler: "📏 自由拖拽/旋转直尺",
         lblAngle: "📐 改变入射角度:",
+        lblDragHint: "🖐️ 交互提示:",
+        txtRotateHint: "🔄 按住 <b>字母 F 顶部手柄</b> 可任意旋转字母！镜像虚像将精准同步对称旋转！",
+        btnBlockerOff: "🚫 开启遮光板测试",
+        btnBlockerOn: "✅ 移除遮光板",
         lblDataTitle: "📊 实验现象与结论:",
         incAngle: "入射角",
         refAngle: "反射角",
@@ -246,8 +253,108 @@
         normal: "法线",
         conclusionSmooth: "🔍 镜面反射：光滑表面使所有光线按【入射角=反射角】规律射出！",
         conclusionRough: "🔍 漫反射：凹凸表面的微观法线方向不同，光线向四散反射，无法清晰成像！",
-        conclusionLetter: "🔍 旋转探究：旋转字母 **F** 时，虚像会以镜像对称角度跟着翻转！",
-        periConclusion: "🔍 潜望镜剖析：管道内的【中间像发生翻转】，但经过【第 2 次反射】再次翻转还原！"
+        conclusionLetter: "🔍 旋转探究：旋转字母 F 时，虚像会以镜像对称角度跟着翻转！",
+        periConclusion: "🔍 潜望镜剖析：管道内的【中间像发生翻转】，但经过【第 2 次反射】再次翻转还原！",
+        footerSub: "🛡️ 本模拟器算法与交互设计受著作权法保护，仅供教育与教学探究使用。"
+      },
+      ms: {
+        title: "Simulator Pantulan Cahaya & Pembentukan Imej Cermin",
+        subtitle: "💡 Terokai Pantulan Teratur, Pantulan Baur & Pengukuran Bebas!",
+        lblMode: "1. Mod Eksperimen:",
+        btnSingle: "🪞 Pantulan Cahaya / Pantulan Baur",
+        btnLetter: "🅰️ Imej Huruf (Seret & Putar Bebas)",
+        btnPeriscope: "🔭 Prinsip Periskop (Sinar Cahaya)",
+        lblSurface: "2. Jenis Permukaan Pantulan:",
+        btnSmooth: "✨ Permukaan Licin (Pantulan Teratur)",
+        btnRough: "🧱 Permukaan Kasar (Pantulan Baur)",
+        lblTools: "3. Kotak Alat Pengukuran Fizik:",
+        btnNormal: "📏 Tunjuk Garis Normal",
+        btnDragProtractor: "📐 Pembaris Sudut Bebas (Protractor)",
+        btnDragRuler: "📏 Pembaris Bebas (Ruler)",
+        lblAngle: "📐 Ubah Sudut Tuju:",
+        lblDragHint: "🖐️ Petunjuk Interaktif:",
+        txtRotateHint: "🔄 Pegang <b>pemegang atas Huruf F</b> untuk memutarkannya! Imej maya akan berputar secara simetri!",
+        btnBlockerOff: "🚫 Uji Penghalang Cahaya",
+        btnBlockerOn: "✅ Buang Penghalang",
+        lblDataTitle: "📊 Keputusan Eksperimen:",
+        incAngle: "Sudut Tuju",
+        refAngle: "Sudut Pantulan",
+        typeSmooth: "Jenis: Pantulan Teratur Licin",
+        typeRough: "Jenis: Pantulan Baur Kasar",
+        typeLetter: "Jenis: Imej Cermin Satah (Simetri Putaran)",
+        typePeriscope: "Jenis: Periskop (Dua Pantulan Saling Pembatalan)",
+        normal: "Garis Normal",
+        conclusionSmooth: "🔍 Pantulan Teratur: Permukaan licin memantulkan cahaya mengikut [Sudut Tuju = Sudut Pantulan]!",
+        conclusionRough: "🔍 Pantulan Baur: Permukaan kasar menyebabkan sinar cahaya terpancar ke pelbagai arah!",
+        conclusionLetter: "🔍 Penerokaan Putaran: Apabila memutarkan Huruf F, imej maya berputar secara simetri!",
+        periConclusion: "🔍 Analisis Periskop: Imej terbalik pada pantulan 1 dibetulkan semula pada pantulan ke-2!",
+        footerSub: "🛡️ Reka bentuk dan algoritma simulator ini dilindungi hak cipta untuk tujuan pendidikan."
+      },
+      en: {
+        title: "Light Reflection & Plane Mirror Imaging Simulator",
+        subtitle: "💡 Explore Regular Reflection, Diffuse Reflection & Measurement Tools!",
+        lblMode: "1. Experiment Mode:",
+        btnSingle: "🪞 Regular / Diffuse Reflection",
+        btnLetter: "🅰️ Letter Imaging (Drag & Free Rotate)",
+        btnPeriscope: "🔭 Periscope Principle (Highlighted Beam)",
+        lblSurface: "2. Reflective Surface Type:",
+        btnSmooth: "✨ Smooth Mirror (Regular Reflection)",
+        btnRough: "🧱 Rough Surface (Diffuse Reflection)",
+        lblTools: "3. Physics Measurement Tools:",
+        btnNormal: "📏 Show Normal Line",
+        btnDragProtractor: "📐 Draggable/Rotatable Protractor",
+        btnDragRuler: "📏 Draggable/Rotatable Ruler",
+        lblAngle: "📐 Change Incident Angle:",
+        lblDragHint: "🖐️ Interactive Tip:",
+        txtRotateHint: "🔄 Hold the <b>handle on top of Letter F</b> to rotate! The virtual image rotates symmetrically!",
+        btnBlockerOff: "🚫 Test Light Blocker",
+        btnBlockerOn: "✅ Remove Blocker",
+        lblDataTitle: "📊 Experimental Results:",
+        incAngle: "Incident Angle",
+        refAngle: "Reflected Angle",
+        typeSmooth: "Type: Regular Mirror Reflection",
+        typeRough: "Type: Irregular Diffuse Reflection",
+        typeLetter: "Type: Plane Mirror Image (Symmetrical Rotation)",
+        typePeriscope: "Type: Periscope (Two Reflections Cancel Inversion)",
+        normal: "Normal",
+        conclusionSmooth: "🔍 Regular Reflection: Smooth surfaces reflect light such that [Angle of Incidence = Angle of Reflection]!",
+        conclusionRough: "🔍 Diffuse Reflection: Rough surfaces scatter light in all directions due to microscopic bumps!",
+        conclusionLetter: "🔍 Rotation Probe: Rotating Letter F causes its mirror virtual image to flip symmetrically!",
+        periConclusion: "🔍 Periscope Analysis: The intermediate inverted image is reverted back by the 2nd reflection!",
+        footerSub: "🛡️ Algorithms and design are protected under copyright law for educational use only."
+      },
+      ta: {
+        title: "ஒளி எதிரொளிப்பு & சமதள ஆடி உருவ மாதிரி",
+        subtitle: "💡 ஒழுங்கான எதிரொளிப்பு, ஒழுங்கற்ற எதிரொளிப்பு மற்றும் அளவீடுகளை ஆராய்க!",
+        lblMode: "1. பரிசோதனை முறை:",
+        btnSingle: "🪞 ஒழுங்கான / ஒழுங்கற்ற எதிரொளிப்பு",
+        btnLetter: "🅰️ எழுத்து பிம்பம் (சுழற்றும் வசதியுடன்)",
+        btnPeriscope: "🔭 பெரிஸ்கோப் தத்துவம் (ஒளி கற்றை)",
+        lblSurface: "2. எதிரொளிப்பு மேற்பரப்பு:",
+        btnSmooth: "✨ வழவழப்பான ஆடி (ஒழுங்கான)",
+        btnRough: "🧱 கரடுமுரடான பரப்பளவு (ஒழுங்கற்ற)",
+        lblTools: "3. அளவீட்டு கருவிகள்:",
+        btnNormal: "📏 செங்குத்து கோட்டைக் காட்டு",
+        btnDragProtractor: "📐 கோணமானி (Protractor)",
+        btnDragRuler: "📏 அளவுகோல் (Ruler)",
+        lblAngle: "📐 படுகோணத்தை மாற்றுக:",
+        lblDragHint: "🖐️ குறிப்பு:",
+        txtRotateHint: "🔄 F எழுத்தின் <b>மேல் கைப்பிடியைப் பிடித்து சுழற்றலாம்</b>! பிம்பமும் சமச்சீராகச் சுழலும்!",
+        btnBlockerOff: "🚫 தடுப்பானைச் சோதிக்கவும்",
+        btnBlockerOn: "✅ தடுப்பானை நீக்குக",
+        lblDataTitle: "📊 பரிசோதனை முடிவுகள்:",
+        incAngle: "படுகோணம்",
+        refAngle: "எதிரொளிப்புக் கோணம்",
+        typeSmooth: "வகை: ஒழுங்கான எதிரொளிப்பு",
+        typeRough: "வகை: ஒழுங்கற்ற எதிரொளிப்பு",
+        typeLetter: "வகை: சமதள ஆடி பிம்பம்",
+        typePeriscope: "வகை: பெரிஸ்கோப் தத்துவம்",
+        normal: "செங்குத்து கோடு",
+        conclusionSmooth: "🔍 வழவழப்பான பரப்பில் [படுகோணம் = எதிரொளிப்புக் கோணம்] என்ற விதியின்படி ஒளி எதிரொளிக்கும்!",
+        conclusionRough: "🔍 கரடுமுரடான பரப்பு ஒளியை அனைத்து திசைகளிலும் சிதறடிக்கும்!",
+        conclusionLetter: "🔍 சுழற்சி ஆய்வு: F எழுத்து சுழலும் போது மாய பிம்பமும் சமச்சீராகச் சுழலும்!",
+        periConclusion: "🔍 பெரிஸ்கோப்: 2-வது எதிரொளிப்பு பிம்பத்தைச் சரியாக மாற்றுகிறது!",
+        footerSub: "🛡️ இந்த மாதிரி கல்வி நோக்கங்களுக்காக மட்டுமே வடிவமைக்கப்பட்டது."
       }
     };
 
@@ -265,7 +372,6 @@
     let protractor = { x: 450, y: 380, angle: 0, radius: 130, isDragging: false, isRotating: false };
     let ruler = { x: 300, y: 450, angle: 0, width: 300, height: 40, isDragging: false, isRotating: false };
 
-    // 字母对象：新增 angle (角度) 与 isRotating 标志
     let letterObj = { x: 200, y: 180, angle: 0, isDragging: false, isRotating: false };
     let eyeObj = { x: 180, y: 400, isDragging: false };
 
@@ -285,7 +391,6 @@
       };
     }
 
-    // --- 鼠标/触摸统一按下事件 ---
     function handleStart(mx, my) {
       if (showProtractorTool) {
         const rotX = protractor.x + Math.sin(protractor.angle) * (protractor.radius + 18);
@@ -320,7 +425,6 @@
       }
 
       if (currentMode === 'letter') {
-        // 计算字母 F 旋转手柄的精确坐标 (处于 F 上方 55 像素)
         const rotHandleX = letterObj.x + Math.sin(letterObj.angle) * 55;
         const rotHandleY = letterObj.y - Math.cos(letterObj.angle) * 55;
 
@@ -343,7 +447,6 @@
       }
     }
 
-    // --- 鼠标/触摸统一移动事件 ---
     function handleMove(mx, my) {
       if (protractor.isRotating) {
         protractor.angle = Math.atan2(my - protractor.y, mx - protractor.x) + Math.PI/2;
@@ -441,8 +544,9 @@
 
     function toggleBlocker() {
       showBlocker = !showBlocker;
+      const t = translations[currentLang];
       const btn = document.getElementById('btnBlocker');
-      btn.innerText = showBlocker ? "✅ 移除遮光板" : "🚫 开启遮光板测试";
+      btn.innerText = showBlocker ? t.btnBlockerOn : t.btnBlockerOff;
       btn.style.background = showBlocker ? "#ec4899" : "#fff";
       btn.style.color = showBlocker ? "#fff" : "#ec4899";
     }
@@ -486,27 +590,49 @@
 
     function updateUI() {
       const t = translations[currentLang];
+      
+      // 动态更新页面上的所有 UI 文本
+      document.getElementById('title').innerText = t.title;
+      document.getElementById('subtitle').innerText = t.subtitle;
+      document.getElementById('lblMode').innerText = t.lblMode;
+      document.getElementById('btnSingle').innerText = t.btnSingle;
+      document.getElementById('btnLetter').innerText = t.btnLetter;
+      document.getElementById('btnPeriscope').innerText = t.btnPeriscope;
+      document.getElementById('lblSurface').innerText = t.lblSurface;
+      document.getElementById('btnSmooth').innerText = t.btnSmooth;
+      document.getElementById('btnRough').innerText = t.btnRough;
+      document.getElementById('lblTools').innerText = t.lblTools;
+      document.getElementById('btnNormal').innerText = t.btnNormal;
+      document.getElementById('btnDragProtractor').innerText = t.btnDragProtractor;
+      document.getElementById('btnDragRuler').innerText = t.btnDragRuler;
+      document.getElementById('lblAngle').innerText = t.lblAngle;
+      document.getElementById('lblDragHint').innerText = t.lblDragHint;
+      document.getElementById('txtRotateHint').innerHTML = t.txtRotateHint;
+      document.getElementById('btnBlocker').innerText = showBlocker ? t.btnBlockerOn : t.btnBlockerOff;
+      document.getElementById('lblDataTitle').innerText = t.lblDataTitle;
+      document.getElementById('footerSub').innerText = t.footerSub;
+
       document.getElementById('angleValText').innerText = `${t.incAngle}: ${incidentAngle}°`;
 
       if (currentMode === 'single') {
-        document.getElementById('txtIncAngle').innerHTML = `<b>${t.incAngle} ($\theta_i$):</b> ${incidentAngle}°`;
+        document.getElementById('txtIncAngle').innerHTML = `<b>${t.incAngle}:</b> ${incidentAngle}°`;
         if (surfaceType === 'smooth') {
-          document.getElementById('txtRefAngle').innerHTML = `<b>${t.refAngle} ($\theta_r$):</b> ${incidentAngle}°`;
+          document.getElementById('txtRefAngle').innerHTML = `<b>${t.refAngle}:</b> ${incidentAngle}°`;
           document.getElementById('txtRefType').innerText = t.typeSmooth;
           document.getElementById('txtRefType').style.color = '#0284c7';
         } else {
-          document.getElementById('txtRefAngle').innerHTML = `<b>${t.refAngle} ($\theta_r$):</b> 各不相同 (漫散射)`;
+          document.getElementById('txtRefAngle').innerHTML = `<b>${t.refAngle}:</b> ---`;
           document.getElementById('txtRefType').innerText = t.typeRough;
           document.getElementById('txtRefType').style.color = '#ea580c';
         }
       } else if (currentMode === 'letter') {
-        document.getElementById('txtIncAngle').innerHTML = `<b>交互状态:</b> 拖拽/旋转字母与工具中`;
-        document.getElementById('txtRefAngle').innerHTML = `<b>旋转角度:</b> ${Math.round((letterObj.angle * 180)/Math.PI)}°`;
+        document.getElementById('txtIncAngle').innerHTML = `<b>${t.typeLetter.split(' ')[0]}:</b> Interactive`;
+        document.getElementById('txtRefAngle').innerHTML = `<b>Angle:</b> ${Math.round((letterObj.angle * 180)/Math.PI)}°`;
         document.getElementById('txtRefType').innerText = t.typeLetter;
         document.getElementById('txtRefType').style.color = '#ec4899';
       } else {
-        document.getElementById('txtIncAngle').innerHTML = `<b>中间像:</b> 1次反射后在管道中翻转`;
-        document.getElementById('txtRefAngle').innerHTML = `<b>最终像:</b> 2次反射负负得正还原`;
+        document.getElementById('txtIncAngle').innerHTML = `<b>Periscope:</b> Ray tracing active`;
+        document.getElementById('txtRefAngle').innerHTML = `<b>Mirror 1 & 2:</b> 45° Alignment`;
         document.getElementById('txtRefType').innerText = t.typePeriscope;
         document.getElementById('txtRefType').style.color = '#10b981';
       }
@@ -742,16 +868,10 @@
         ctx.stroke();
       }
 
-      ctx.fillStyle = '#64748b';
-      ctx.font = 'bold 13px sans-serif';
-      ctx.fillText('🪞 镜面前 (自由旋转手柄)', mirrorX - 180, 45);
-      ctx.fillText('✨ 镜面后 (姿态对称虚像)', mirrorX + 30, 45);
-
       const dist = mirrorX - letterObj.x;
       const imgX = mirrorX + dist;
       const imgY = letterObj.y;
 
-      // 1. 绘制左侧原物字母 F
       ctx.save();
       ctx.translate(letterObj.x, letterObj.y);
       ctx.rotate(letterObj.angle);
@@ -767,7 +887,6 @@
       ctx.setLineDash([4, 4]);
       ctx.strokeRect(-25, -40, 50, 75);
 
-      // 绘制旋转手柄 🔄
       ctx.fillStyle = '#10b981';
       ctx.beginPath();
       ctx.arc(0, -55, 12, 0, Math.PI * 2);
@@ -778,21 +897,16 @@
 
       ctx.restore();
 
-      // 2. 遮光板支持
       const blockerY = 240;
       if (showBlocker) {
         ctx.fillStyle = '#334155';
         ctx.fillRect(mirrorX - 25, blockerY, 20, 80);
-        ctx.fillStyle = '#ffffff';
-        ctx.font = 'bold 11px sans-serif';
-        ctx.fillText('遮光', mirrorX - 23, blockerY + 45);
       }
 
-      // 3. 绘制右侧镜像虚像 F（同时进行水平翻转与旋转镜像映射）
       ctx.save();
       ctx.translate(imgX, imgY);
       ctx.scale(-1, 1);
-      ctx.rotate(-letterObj.angle); // 镜像角度变换
+      ctx.rotate(-letterObj.angle);
 
       ctx.fillStyle = 'rgba(236, 72, 153, 0.55)';
       ctx.font = 'bold 70px sans-serif';
@@ -801,11 +915,9 @@
       ctx.fillText('F', 0, 0);
       ctx.restore();
 
-      // 4. 计算光路线
       const cosA = Math.cos(letterObj.angle);
       const sinA = Math.sin(letterObj.angle);
 
-      // 旋转后坐标点算式
       const p1_local = { x: -10, y: -30 };
       const p2_local = { x: 20, y: -30 };
 
@@ -855,7 +967,6 @@
         }
       });
 
-      // 眼睛
       ctx.save();
       ctx.font = '38px serif';
       ctx.fillText('👁️', eyeObj.x - 18, eyeObj.y + 12);
@@ -1032,6 +1143,8 @@
       ctx.restore();
     }
 
+    // 初始化界面语言与循环
+    updateUI();
     animate();
   </script>
 </body>
