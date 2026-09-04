@@ -1,0 +1,1038 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>光的反射与平面镜成像模拟器 (全功能适配版)</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; touch-action: manipulation; }
+    body {
+      background-color: #f4f7fb;
+      font-family: "Comfortaa", "Quicksand", "YouYuan", "幼圆", "PingFang SC", sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      color: #334155;
+    }
+    header {
+      background: #ffffff;
+      padding: 12px 20px;
+      border-bottom: 2px solid #e2e8f0;
+      text-align: center;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.03);
+    }
+    header h2 { color: #1e293b; font-size: 22px; font-weight: 700; }
+    header p { color: #64748b; font-size: 13px; margin-top: 4px; font-weight: 500; }
+    .main-container { display: flex; flex: 1; padding: 14px; gap: 14px; flex-wrap: wrap; }
+    .sidebar {
+      width: 270px;
+      background: #ffffff;
+      border-radius: 14px;
+      padding: 16px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      flex-shrink: 0;
+    }
+    @media (max-width: 768px) {
+      .sidebar { width: 100%; }
+      .main-container { flex-direction: column; }
+    }
+    .panel-group { display: flex; flex-direction: column; gap: 8px; }
+    .panel-group label { font-weight: 700; color: #1e293b; font-size: 14px; }
+    .btn-group { display: flex; flex-direction: column; gap: 6px; }
+    .btn-group button, .lang-grid button {
+      padding: 10px;
+      border: 2px solid #cbd5e1;
+      background-color: #f8fafc;
+      color: #475569;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 13px;
+      text-align: left;
+      transition: all 0.2s;
+    }
+    .btn-group button:hover { background-color: #e0f2fe; border-color: #38bdf8; color: #0369a1; }
+    .btn-group button.active {
+      background-color: #0284c7;
+      color: #ffffff;
+      border-color: #0284c7;
+      box-shadow: 0 3px 8px rgba(2, 132, 199, 0.3);
+    }
+    .lang-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+    .lang-grid button { border: 2px solid #cbd5e1; background: #ffffff; color: #475569; text-align: center; font-size: 12px; padding: 6px; }
+    .lang-grid button.active { background: #ec4899; color: #ffffff; border-color: #ec4899; }
+    .canvas-container {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #ffffff;
+      border-radius: 14px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      padding: 10px;
+      overflow: hidden;
+    }
+    canvas {
+      border-radius: 8px;
+      background-color: #ffffff;
+      cursor: default;
+      max-width: 100%;
+      height: auto;
+      touch-action: none;
+    }
+    
+    footer {
+      background: #ffffff;
+      border-top: 2px solid #e2e8f0;
+      text-align: center;
+      padding: 14px 20px;
+      color: #475569;
+      box-shadow: 0 -2px 6px rgba(0,0,0,0.02);
+    }
+    .footer-content {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      align-items: center;
+      justify-content: center;
+    }
+    .copyright-text {
+      font-size: 13.5px;
+      font-weight: 700;
+      color: #1e293b;
+      letter-spacing: 0.3px;
+    }
+    .copyright-sub {
+      font-size: 12px;
+      color: #64748b;
+      font-weight: 500;
+    }
+
+    .tool-btn {
+      background: #f1f5f9;
+      border: 2px solid #94a3b8;
+      border-radius: 8px;
+      padding: 10px;
+      font-weight: bold;
+      color: #334155;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .tool-btn.active {
+      background: #10b981;
+      color: white;
+      border-color: #059669;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h2 id="title">光的反射与平面镜成像模拟器</h2>
+    <p id="subtitle">💡 探究镜面反射、漫反射与【自由拖拽测量】物理原理！</p>
+  </header>
+
+  <div class="main-container">
+    <div class="sidebar">
+      <div class="panel-group">
+        <label>🌐 Language / 语言:</label>
+        <div class="lang-grid">
+          <button class="lang-btn active" onclick="setLanguage('zh', this)">华语</button>
+          <button class="lang-btn" onclick="setLanguage('ms', this)">Melayu</button>
+          <button class="lang-btn" onclick="setLanguage('en', this)">English</button>
+          <button class="lang-btn" onclick="setLanguage('ta', this)">தமிழ்</button>
+        </div>
+      </div>
+
+      <hr style="border:0; border-top:2px dashed #f1f5f9;">
+
+      <div class="panel-group">
+        <label id="lblMode">1. 实验模式:</label>
+        <div class="btn-group">
+          <button id="btnSingle" class="active" onclick="changeMode('single')">🪞 光线反射 / 漫反射</button>
+          <button id="btnLetter" onclick="changeMode('letter')">🅰️ 字母成像 (拖拽与自由旋转)</button>
+          <button id="btnPeriscope" onclick="changeMode('periscope')">🔭 潜望镜原理 (高亮光束)</button>
+        </div>
+      </div>
+
+      <div class="panel-group" id="surfaceGroup">
+        <label id="lblSurface">2. 反射表面材质:</label>
+        <div class="btn-group">
+          <button id="btnSmooth" class="active" onclick="changeSurface('smooth')">✨ 光滑平面镜 (镜面反射)</button>
+          <button id="btnRough" onclick="changeSurface('rough')">🧱 凹凸不平表面 (漫反射)</button>
+        </div>
+      </div>
+
+      <div class="panel-group" id="toolsGroup">
+        <label id="lblTools">3. 物理测量工具箱:</label>
+        <div class="btn-group">
+          <button id="btnNormal" class="active" onclick="toggleNormal()">📏 显示参考法线 (Normal)</button>
+          <button id="btnDragProtractor" class="tool-btn" onclick="toggleDragTool('protractor')">📐 自由拖拽/旋转量角器</button>
+          <button id="btnDragRuler" class="tool-btn" onclick="toggleDragTool('ruler')">📏 自由拖拽/旋转直尺</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="canvas-container">
+      <canvas id="simCanvas" width="900" height="520"></canvas>
+    </div>
+
+    <div class="sidebar">
+      <div class="panel-group" id="angleSliderGroup">
+        <label id="lblAngle">📐 改变入射角度:</label>
+        <input type="range" id="angleSlider" min="15" max="75" value="45" oninput="updateAngle(this.value)" style="width: 100%; accent-color: #0284c7;">
+        <div style="font-size: 14px; font-weight: 700; color: #0284c7; margin-top: 4px;" id="angleValText">入射角: 45°</div>
+      </div>
+
+      <div class="panel-group" id="letterDistGroup" style="display: none;">
+        <label id="lblDragHint">🖐️ 交互提示:</label>
+        <div style="font-size: 13px; color: #ec4899; font-weight: 600; line-height: 1.5;">
+          🔄 按住 <b>字母 F 顶部手柄</b> 可任意旋转字母！镜像虚像将精准同步对称旋转！
+        </div>
+        <button id="btnBlocker" onclick="toggleBlocker()" style="margin-top:8px; padding:10px; border-radius:8px; border:2px solid #ec4899; background:#fff; color:#ec4899; font-weight:bold; cursor:pointer;">
+          🚫 开启遮光板测试
+        </button>
+      </div>
+
+      <div class="panel-group" style="background: #f0f9ff; padding: 12px; border-radius: 12px; border: 1.5px solid #bae6fd;">
+        <label style="color: #0369a1;" id="lblDataTitle">📊 实验现象与结论:</label>
+        <div style="font-size: 13px; line-height: 1.7; color: #334155;">
+          <p id="txtIncAngle"><b>入射角:</b> 45°</p>
+          <p id="txtRefAngle"><b>反射角:</b> 45°</p>
+          <p id="txtRefType" style="margin-top: 6px; color: #0284c7; font-weight: 700;">类型: 规律镜面反射</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <div class="footer-content">
+      <p class="copyright-text">
+        © 2026 Pon-888 &lt;PON KWIT FONG_KPM&gt; All Rights Reserved.
+      </p>
+      <p class="copyright-sub">
+        🛡️ 本模拟器算法与交互设计受著作权法保护，仅供教育与教学探究使用。
+      </p>
+    </div>
+  </footer>
+
+  <script>
+    const translations = {
+      zh: {
+        title: "光的反射与平面镜成像模拟器",
+        subtitle: "💡 探究镜面反射、漫反射与【自由拖拽测量】物理原理！",
+        lblMode: "1. 实验模式:",
+        btnSingle: "🪞 光线反射 / 漫反射",
+        btnLetter: "🅰️ 字母成像 (拖拽与自由旋转)",
+        btnPeriscope: "🔭 潜望镜原理 (高亮光束)",
+        lblSurface: "2. 反射表面材质:",
+        btnSmooth: "✨ 光滑平面镜 (镜面反射)",
+        btnRough: "🧱 凹凸不平表面 (漫反射)",
+        lblTools: "3. 物理测量工具箱:",
+        btnNormal: "📏 显示参考法线",
+        lblAngle: "📐 改变入射角度:",
+        lblDataTitle: "📊 实验现象与结论:",
+        incAngle: "入射角",
+        refAngle: "反射角",
+        typeSmooth: "类型: 规律镜面反射",
+        typeRough: "类型: 无规律漫反射",
+        typeLetter: "类型: 平面镜成像 (姿态与旋转对称)",
+        typePeriscope: "类型: 潜望镜 (高亮光束与两次反射抵消)",
+        normal: "法线",
+        conclusionSmooth: "🔍 镜面反射：光滑表面使所有光线按【入射角=反射角】规律射出！",
+        conclusionRough: "🔍 漫反射：凹凸表面的微观法线方向不同，光线向四散反射，无法清晰成像！",
+        conclusionLetter: "🔍 旋转探究：旋转字母 **F** 时，虚像会以镜像对称角度跟着翻转！",
+        periConclusion: "🔍 潜望镜剖析：管道内的【中间像发生翻转】，但经过【第 2 次反射】再次翻转还原！"
+      }
+    };
+
+    let currentLang = 'zh';
+    let currentMode = 'single';
+    let surfaceType = 'smooth';
+    let showNormal = true;
+    let incidentAngle = 45;
+    let animProgress = 0;
+    let showBlocker = false;
+
+    let showProtractorTool = false;
+    let showRulerTool = false;
+
+    let protractor = { x: 450, y: 380, angle: 0, radius: 130, isDragging: false, isRotating: false };
+    let ruler = { x: 300, y: 450, angle: 0, width: 300, height: 40, isDragging: false, isRotating: false };
+
+    // 字母对象：新增 angle (角度) 与 isRotating 标志
+    let letterObj = { x: 200, y: 180, angle: 0, isDragging: false, isRotating: false };
+    let eyeObj = { x: 180, y: 400, isDragging: false };
+
+    let dragOffsetX = 0, dragOffsetY = 0;
+    let initialTouchAngle = 0;
+
+    const canvas = document.getElementById('simCanvas');
+    const ctx = canvas.getContext('2d');
+
+    function getCanvasCoords(clientX, clientY) {
+      const rect = canvas.getBoundingClientRect();
+      const scaleX = canvas.width / rect.width;
+      const scaleY = canvas.height / rect.height;
+      return {
+        x: (clientX - rect.left) * scaleX,
+        y: (clientY - rect.top) * scaleY
+      };
+    }
+
+    // --- 鼠标/触摸统一按下事件 ---
+    function handleStart(mx, my) {
+      if (showProtractorTool) {
+        const rotX = protractor.x + Math.sin(protractor.angle) * (protractor.radius + 18);
+        const rotY = protractor.y - Math.cos(protractor.angle) * (protractor.radius + 18);
+        if (Math.hypot(mx - rotX, my - rotY) < 25) {
+          protractor.isRotating = true;
+          return;
+        }
+        if (Math.hypot(mx - protractor.x, my - protractor.y) < protractor.radius) {
+          protractor.isDragging = true;
+          dragOffsetX = mx - protractor.x;
+          dragOffsetY = my - protractor.y;
+          return;
+        }
+      }
+
+      if (showRulerTool) {
+        const rotX = ruler.x + Math.cos(ruler.angle) * (ruler.width / 2 + 20);
+        const rotY = ruler.y + Math.sin(ruler.angle) * (ruler.width / 2 + 20);
+        if (Math.hypot(mx - rotX, my - rotY) < 25) {
+          ruler.isRotating = true;
+          return;
+        }
+        const dx = mx - ruler.x;
+        const dy = my - ruler.y;
+        if (Math.hypot(dx, dy) < ruler.width / 2) {
+          ruler.isDragging = true;
+          dragOffsetX = dx;
+          dragOffsetY = dy;
+          return;
+        }
+      }
+
+      if (currentMode === 'letter') {
+        // 计算字母 F 旋转手柄的精确坐标 (处于 F 上方 55 像素)
+        const rotHandleX = letterObj.x + Math.sin(letterObj.angle) * 55;
+        const rotHandleY = letterObj.y - Math.cos(letterObj.angle) * 55;
+
+        if (Math.hypot(mx - rotHandleX, my - rotHandleY) < 22) {
+          letterObj.isRotating = true;
+          return;
+        }
+
+        if (Math.hypot(mx - letterObj.x, my - letterObj.y) < 45) {
+          letterObj.isDragging = true;
+          dragOffsetX = mx - letterObj.x;
+          dragOffsetY = my - letterObj.y;
+          return;
+        }
+
+        if (Math.hypot(mx - eyeObj.x, my - eyeObj.y) < 40) {
+          eyeObj.isDragging = true;
+          return;
+        }
+      }
+    }
+
+    // --- 鼠标/触摸统一移动事件 ---
+    function handleMove(mx, my) {
+      if (protractor.isRotating) {
+        protractor.angle = Math.atan2(my - protractor.y, mx - protractor.x) + Math.PI/2;
+      } else if (protractor.isDragging) {
+        protractor.x = mx - dragOffsetX;
+        protractor.y = my - dragOffsetY;
+      }
+
+      if (ruler.isRotating) {
+        ruler.angle = Math.atan2(my - ruler.y, mx - ruler.x);
+      } else if (ruler.isDragging) {
+        ruler.x = mx - dragOffsetX;
+        ruler.y = my - dragOffsetY;
+      }
+
+      if (letterObj.isRotating) {
+        letterObj.angle = Math.atan2(my - letterObj.y, mx - letterObj.x) + Math.PI/2;
+      } else if (letterObj.isDragging) {
+        letterObj.x = Math.max(80, Math.min(410, mx - dragOffsetX));
+        letterObj.y = Math.max(120, Math.min(380, my - dragOffsetY));
+      } else if (eyeObj.isDragging) {
+        eyeObj.x = Math.max(80, Math.min(410, mx));
+        eyeObj.y = Math.max(260, Math.min(460, my));
+      }
+    }
+
+    function handleEnd() {
+      protractor.isDragging = false;
+      protractor.isRotating = false;
+      ruler.isDragging = false;
+      ruler.isRotating = false;
+      letterObj.isDragging = false;
+      letterObj.isRotating = false;
+      eyeObj.isDragging = false;
+    }
+
+    canvas.addEventListener('mousedown', (e) => {
+      const coords = getCanvasCoords(e.clientX, e.clientY);
+      handleStart(coords.x, coords.y);
+    });
+    canvas.addEventListener('mousemove', (e) => {
+      const coords = getCanvasCoords(e.clientX, e.clientY);
+      handleMove(coords.x, coords.y);
+    });
+    window.addEventListener('mouseup', handleEnd);
+
+    canvas.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      if (e.touches.length === 1) {
+        const touch = e.touches[0];
+        const coords = getCanvasCoords(touch.clientX, touch.clientY);
+        handleStart(coords.x, coords.y);
+      } else if (e.touches.length === 2) {
+        const t1 = getCanvasCoords(e.touches[0].clientX, e.touches[0].clientY);
+        const t2 = getCanvasCoords(e.touches[1].clientX, e.touches[1].clientY);
+        initialTouchAngle = Math.atan2(t2.y - t1.y, t2.x - t1.x);
+      }
+    }, { passive: false });
+
+    canvas.addEventListener('touchmove', (e) => {
+      e.preventDefault();
+      if (e.touches.length === 1) {
+        const touch = e.touches[0];
+        const coords = getCanvasCoords(touch.clientX, touch.clientY);
+        handleMove(coords.x, coords.y);
+      } else if (e.touches.length === 2) {
+        const t1 = getCanvasCoords(e.touches[0].clientX, e.touches[0].clientY);
+        const t2 = getCanvasCoords(e.touches[1].clientX, e.touches[1].clientY);
+        const currentAngle = Math.atan2(t2.y - t1.y, t2.x - t1.x);
+        const deltaAngle = currentAngle - initialTouchAngle;
+
+        if (letterObj.isDragging || letterObj.isRotating) {
+          letterObj.angle += deltaAngle;
+        } else if (protractor.isDragging || protractor.isRotating) {
+          protractor.angle += deltaAngle;
+        } else if (ruler.isDragging || ruler.isRotating) {
+          ruler.angle += deltaAngle;
+        }
+        initialTouchAngle = currentAngle;
+      }
+    }, { passive: false });
+
+    canvas.addEventListener('touchend', handleEnd);
+    canvas.addEventListener('touchcancel', handleEnd);
+
+    function toggleDragTool(tool) {
+      if (tool === 'protractor') {
+        showProtractorTool = !showProtractorTool;
+        document.getElementById('btnDragProtractor').classList.toggle('active', showProtractorTool);
+      } else if (tool === 'ruler') {
+        showRulerTool = !showRulerTool;
+        document.getElementById('btnDragRuler').classList.toggle('active', showRulerTool);
+      }
+    }
+
+    function toggleBlocker() {
+      showBlocker = !showBlocker;
+      const btn = document.getElementById('btnBlocker');
+      btn.innerText = showBlocker ? "✅ 移除遮光板" : "🚫 开启遮光板测试";
+      btn.style.background = showBlocker ? "#ec4899" : "#fff";
+      btn.style.color = showBlocker ? "#fff" : "#ec4899";
+    }
+
+    function setLanguage(lang, btnElem) {
+      currentLang = lang;
+      document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+      btnElem.classList.add('active');
+      updateUI();
+    }
+
+    function changeMode(mode) {
+      currentMode = mode;
+      document.getElementById('btnSingle').classList.toggle('active', mode === 'single');
+      document.getElementById('btnLetter').classList.toggle('active', mode === 'letter');
+      document.getElementById('btnPeriscope').classList.toggle('active', mode === 'periscope');
+
+      document.getElementById('surfaceGroup').style.display = mode === 'single' ? 'flex' : 'none';
+      document.getElementById('angleSliderGroup').style.display = mode === 'single' ? 'flex' : 'none';
+      document.getElementById('letterDistGroup').style.display = mode === 'letter' ? 'flex' : 'none';
+
+      updateUI();
+    }
+
+    function changeSurface(type) {
+      surfaceType = type;
+      document.getElementById('btnSmooth').classList.toggle('active', type === 'smooth');
+      document.getElementById('btnRough').classList.toggle('active', type === 'rough');
+      updateUI();
+    }
+
+    function toggleNormal() {
+      showNormal = !showNormal;
+      document.getElementById('btnNormal').classList.toggle('active', showNormal);
+    }
+
+    function updateAngle(val) {
+      incidentAngle = parseInt(val);
+      updateUI();
+    }
+
+    function updateUI() {
+      const t = translations[currentLang];
+      document.getElementById('angleValText').innerText = `${t.incAngle}: ${incidentAngle}°`;
+
+      if (currentMode === 'single') {
+        document.getElementById('txtIncAngle').innerHTML = `<b>${t.incAngle} ($\theta_i$):</b> ${incidentAngle}°`;
+        if (surfaceType === 'smooth') {
+          document.getElementById('txtRefAngle').innerHTML = `<b>${t.refAngle} ($\theta_r$):</b> ${incidentAngle}°`;
+          document.getElementById('txtRefType').innerText = t.typeSmooth;
+          document.getElementById('txtRefType').style.color = '#0284c7';
+        } else {
+          document.getElementById('txtRefAngle').innerHTML = `<b>${t.refAngle} ($\theta_r$):</b> 各不相同 (漫散射)`;
+          document.getElementById('txtRefType').innerText = t.typeRough;
+          document.getElementById('txtRefType').style.color = '#ea580c';
+        }
+      } else if (currentMode === 'letter') {
+        document.getElementById('txtIncAngle').innerHTML = `<b>交互状态:</b> 拖拽/旋转字母与工具中`;
+        document.getElementById('txtRefAngle').innerHTML = `<b>旋转角度:</b> ${Math.round((letterObj.angle * 180)/Math.PI)}°`;
+        document.getElementById('txtRefType').innerText = t.typeLetter;
+        document.getElementById('txtRefType').style.color = '#ec4899';
+      } else {
+        document.getElementById('txtIncAngle').innerHTML = `<b>中间像:</b> 1次反射后在管道中翻转`;
+        document.getElementById('txtRefAngle').innerHTML = `<b>最终像:</b> 2次反射负负得正还原`;
+        document.getElementById('txtRefType').innerText = t.typePeriscope;
+        document.getElementById('txtRefType').style.color = '#10b981';
+      }
+    }
+
+    function animate() {
+      animProgress += 0.012;
+      if (animProgress > 1.0) animProgress = 0.0;
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      if (currentMode === 'single') {
+        drawSingleMirrorSimulation();
+      } else if (currentMode === 'letter') {
+        drawConcreteLetterSimulation();
+      } else {
+        drawPeriscopeSimulation();
+      }
+
+      if (showProtractorTool) drawDraggableProtractor();
+      if (showRulerTool) drawDraggableRuler();
+
+      requestAnimationFrame(animate);
+    }
+
+    function drawDraggableProtractor() {
+      ctx.save();
+      ctx.translate(protractor.x, protractor.y);
+      ctx.rotate(protractor.angle);
+
+      ctx.beginPath();
+      ctx.arc(0, 0, protractor.radius, Math.PI, 2 * Math.PI);
+      ctx.closePath();
+      ctx.fillStyle = 'rgba(56, 189, 248, 0.25)';
+      ctx.fill();
+      ctx.strokeStyle = '#0284c7';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      ctx.fillStyle = '#0f172a';
+      ctx.font = 'bold 9px sans-serif';
+      ctx.textAlign = 'center';
+      for (let a = 0; a <= 180; a += 5) {
+        const rad = (a * Math.PI) / 180;
+        const isMajor = a % 10 === 0;
+        const len = isMajor ? 12 : 6;
+        const x1 = -(protractor.radius - len) * Math.cos(rad);
+        const y1 = -(protractor.radius - len) * Math.sin(rad);
+        const x2 = -protractor.radius * Math.cos(rad);
+        const y2 = -protractor.radius * Math.sin(rad);
+
+        ctx.beginPath();
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(x2, y2);
+        ctx.stroke();
+
+        if (isMajor) {
+          const tx = -(protractor.radius - 22) * Math.cos(rad);
+          const ty = -(protractor.radius - 22) * Math.sin(rad);
+          ctx.fillText(a.toString(), tx, ty + 3);
+        }
+      }
+
+      ctx.fillStyle = '#ef4444';
+      ctx.beginPath();
+      ctx.arc(0, 0, 4, 0, Math.PI * 2);
+      ctx.fill();
+
+      const rotY = -(protractor.radius + 18);
+      ctx.fillStyle = '#10b981';
+      ctx.beginPath();
+      ctx.arc(0, rotY, 14, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 11px sans-serif';
+      ctx.fillText('🔄', 0, rotY + 4);
+
+      ctx.restore();
+    }
+
+    function drawDraggableRuler() {
+      ctx.save();
+      ctx.translate(ruler.x, ruler.y);
+      ctx.rotate(ruler.angle);
+
+      const halfW = ruler.width / 2;
+      const halfH = ruler.height / 2;
+
+      ctx.fillStyle = 'rgba(251, 191, 36, 0.35)';
+      ctx.fillRect(-halfW, -halfH, ruler.width, ruler.height);
+      ctx.strokeStyle = '#d97706';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(-halfW, -halfH, ruler.width, ruler.height);
+
+      ctx.fillStyle = '#78350f';
+      ctx.font = 'bold 9px sans-serif';
+      ctx.textAlign = 'center';
+
+      for (let px = 0; px <= ruler.width; px += 10) {
+        const isCm = px % 50 === 0;
+        const len = isCm ? 14 : (px % 10 === 0 ? 8 : 4);
+        const xPos = -halfW + px;
+
+        ctx.beginPath();
+        ctx.moveTo(xPos, -halfH);
+        ctx.lineTo(xPos, -halfH + len);
+        ctx.stroke();
+
+        if (isCm) {
+          ctx.fillText((px / 10).toString() + 'cm', xPos, -halfH + 24);
+        }
+      }
+
+      const rotX = halfW + 20;
+      ctx.fillStyle = '#10b981';
+      ctx.beginPath();
+      ctx.arc(rotX, 0, 14, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 11px sans-serif';
+      ctx.fillText('🔄', rotX, 4);
+
+      ctx.restore();
+    }
+
+    function drawSingleMirrorSimulation() {
+      const t = translations[currentLang];
+      const mirrorX = 150, mirrorY = 380, mirrorW = 600;
+      const centerHitX = mirrorX + mirrorW / 2;
+      const centerHitY = mirrorY;
+
+      if (surfaceType === 'smooth') {
+        ctx.fillStyle = '#cbd5e1';
+        ctx.fillRect(mirrorX, mirrorY, mirrorW, 16);
+        ctx.strokeStyle = '#475569';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(mirrorX, mirrorY, mirrorW, 16);
+
+        ctx.strokeStyle = '#94a3b8';
+        ctx.lineWidth = 1.5;
+        for (let x = mirrorX + 5; x < mirrorX + mirrorW; x += 15) {
+          ctx.beginPath();
+          ctx.moveTo(x, mirrorY + 16);
+          ctx.lineTo(x - 8, mirrorY + 26);
+          ctx.stroke();
+        }
+      } else {
+        ctx.fillStyle = '#b45309';
+        ctx.beginPath();
+        ctx.moveTo(mirrorX, mirrorY + 20);
+        for (let x = mirrorX; x <= mirrorX + mirrorW; x += 20) {
+          ctx.lineTo(x + 10, mirrorY - 6);
+          ctx.lineTo(x + 20, mirrorY + 10);
+        }
+        ctx.lineTo(mirrorX + mirrorW, mirrorY + 30);
+        ctx.lineTo(mirrorX, mirrorY + 30);
+        ctx.closePath();
+        ctx.fill();
+        ctx.strokeStyle = '#78350f';
+        ctx.lineWidth = 2.5;
+        ctx.stroke();
+      }
+
+      if (showNormal) {
+        ctx.save();
+        ctx.strokeStyle = '#64748b';
+        ctx.lineWidth = 2;
+        ctx.setLineDash([6, 6]);
+        ctx.beginPath();
+        ctx.moveTo(centerHitX, centerHitY);
+        ctx.lineTo(centerHitX, centerHitY - 260);
+        ctx.stroke();
+        ctx.fillStyle = '#475569';
+        ctx.font = '600 14px sans-serif';
+        ctx.fillText(t.normal, centerHitX - 22, centerHitY - 270);
+        ctx.restore();
+      }
+
+      const radInc = (incidentAngle * Math.PI) / 180;
+      const rayLength = 250;
+      const hitOffsets = [-50, 0, 50];
+
+      if (surfaceType === 'smooth') {
+        hitOffsets.forEach((dx) => {
+          const hitX = centerHitX + dx;
+          const hitY = centerHitY;
+          const startX = hitX - rayLength * Math.sin(radInc);
+          const startY = hitY - rayLength * Math.cos(radInc);
+          const endX = hitX + rayLength * Math.sin(radInc);
+          const endY = hitY - rayLength * Math.cos(radInc);
+
+          drawRealisticLightBeam(startX, startY, hitX, hitY, '#ef4444', dx === 0 ? `${t.incAngle}: ${incidentAngle}°` : '');
+          drawRealisticLightBeam(hitX, hitY, endX, endY, '#3b82f6', dx === 0 ? `${t.refAngle}: ${incidentAngle}°` : '');
+        });
+      } else {
+        const scatterAngles = [-60, -20, 35, 75];
+        hitOffsets.forEach((dx, idx) => {
+          const hitX = centerHitX + dx;
+          const hitY = centerHitY + (idx % 2 === 0 ? -4 : 6);
+          const startX = hitX - rayLength * Math.sin(radInc);
+          const startY = hitY - rayLength * Math.cos(radInc);
+
+          drawRealisticLightBeam(startX, startY, hitX, hitY, '#ef4444', '');
+          const scatterRad = (scatterAngles[idx] * Math.PI) / 180;
+          const endX = hitX + rayLength * 0.85 * Math.sin(scatterRad);
+          const endY = hitY - rayLength * 0.85 * Math.cos(scatterRad);
+          drawRealisticLightBeam(hitX, hitY, endX, endY, '#f97316', '');
+        });
+      }
+
+      ctx.fillStyle = '#0f172a';
+      ctx.font = '600 14px "PingFang SC", sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(surfaceType === 'smooth' ? t.conclusionSmooth : t.conclusionRough, canvas.width / 2, 485);
+    }
+
+    function drawConcreteLetterSimulation() {
+      const t = translations[currentLang];
+      const mirrorX = 450;
+
+      ctx.fillStyle = '#cbd5e1';
+      ctx.fillRect(mirrorX - 6, 60, 12, 380);
+      ctx.strokeStyle = '#0284c7';
+      ctx.lineWidth = 3;
+      ctx.strokeRect(mirrorX - 6, 60, 12, 380);
+
+      ctx.strokeStyle = '#94a3b8';
+      ctx.lineWidth = 2;
+      for (let y = 70; y < 430; y += 20) {
+        ctx.beginPath();
+        ctx.moveTo(mirrorX + 6, y);
+        ctx.lineTo(mirrorX + 16, y + 10);
+        ctx.stroke();
+      }
+
+      ctx.fillStyle = '#64748b';
+      ctx.font = 'bold 13px sans-serif';
+      ctx.fillText('🪞 镜面前 (自由旋转手柄)', mirrorX - 180, 45);
+      ctx.fillText('✨ 镜面后 (姿态对称虚像)', mirrorX + 30, 45);
+
+      const dist = mirrorX - letterObj.x;
+      const imgX = mirrorX + dist;
+      const imgY = letterObj.y;
+
+      // 1. 绘制左侧原物字母 F
+      ctx.save();
+      ctx.translate(letterObj.x, letterObj.y);
+      ctx.rotate(letterObj.angle);
+
+      ctx.fillStyle = '#0f172a';
+      ctx.font = 'bold 70px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('F', 0, 0);
+
+      ctx.strokeStyle = 'rgba(2, 132, 199, 0.4)';
+      ctx.lineWidth = 1.5;
+      ctx.setLineDash([4, 4]);
+      ctx.strokeRect(-25, -40, 50, 75);
+
+      // 绘制旋转手柄 🔄
+      ctx.fillStyle = '#10b981';
+      ctx.beginPath();
+      ctx.arc(0, -55, 12, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 10px sans-serif';
+      ctx.fillText('🔄', 0, -55);
+
+      ctx.restore();
+
+      // 2. 遮光板支持
+      const blockerY = 240;
+      if (showBlocker) {
+        ctx.fillStyle = '#334155';
+        ctx.fillRect(mirrorX - 25, blockerY, 20, 80);
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 11px sans-serif';
+        ctx.fillText('遮光', mirrorX - 23, blockerY + 45);
+      }
+
+      // 3. 绘制右侧镜像虚像 F（同时进行水平翻转与旋转镜像映射）
+      ctx.save();
+      ctx.translate(imgX, imgY);
+      ctx.scale(-1, 1);
+      ctx.rotate(-letterObj.angle); // 镜像角度变换
+
+      ctx.fillStyle = 'rgba(236, 72, 153, 0.55)';
+      ctx.font = 'bold 70px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('F', 0, 0);
+      ctx.restore();
+
+      // 4. 计算光路线
+      const cosA = Math.cos(letterObj.angle);
+      const sinA = Math.sin(letterObj.angle);
+
+      // 旋转后坐标点算式
+      const p1_local = { x: -10, y: -30 };
+      const p2_local = { x: 20, y: -30 };
+
+      const p1_world = {
+        ox: letterObj.x + p1_local.x * cosA - p1_local.y * sinA,
+        oy: letterObj.y + p1_local.x * sinA + p1_local.y * cosA,
+        ix: imgX - (p1_local.x * cosA - p1_local.y * sinA),
+        iy: imgY + p1_local.x * sinA + p1_local.y * cosA,
+        color: '#ef4444'
+      };
+
+      const p2_world = {
+        ox: letterObj.x + p2_local.x * cosA - p2_local.y * sinA,
+        oy: letterObj.y + p2_local.x * sinA + p2_local.y * cosA,
+        ix: imgX - (p2_local.x * cosA - p2_local.y * sinA),
+        iy: imgY + p2_local.x * sinA + p2_local.y * cosA,
+        color: '#3b82f6'
+      };
+
+      [p1_world, p2_world].forEach(pt => {
+        const tVal = (mirrorX - pt.ix) / (eyeObj.x - pt.ix);
+        const hitY = pt.iy + tVal * (eyeObj.y - pt.iy);
+        const isBlocked = showBlocker && (hitY >= blockerY && hitY <= blockerY + 80);
+
+        drawRealisticLightBeam(pt.ox, pt.oy, mirrorX, hitY, pt.color, '');
+
+        if (!isBlocked) {
+          drawRealisticLightBeam(mirrorX, hitY, eyeObj.x, eyeObj.y, pt.color, '');
+          ctx.strokeStyle = pt.color;
+          ctx.lineWidth = 2;
+          ctx.setLineDash([5, 5]);
+          ctx.beginPath();
+          ctx.moveTo(mirrorX, hitY);
+          ctx.lineTo(pt.ix, pt.iy);
+          ctx.stroke();
+          ctx.setLineDash([]);
+        }
+
+        ctx.fillStyle = pt.color;
+        ctx.beginPath();
+        ctx.arc(pt.ox, pt.oy, 5, 0, Math.PI * 2);
+        ctx.fill();
+        if (!isBlocked) {
+          ctx.beginPath();
+          ctx.arc(pt.ix, pt.iy, 5, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      });
+
+      // 眼睛
+      ctx.save();
+      ctx.font = '38px serif';
+      ctx.fillText('👁️', eyeObj.x - 18, eyeObj.y + 12);
+      ctx.restore();
+
+      ctx.fillStyle = '#0f172a';
+      ctx.font = '600 13.5px "PingFang SC", sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(t.conclusionLetter, canvas.width / 2, 490);
+    }
+
+    function drawPeriscopeSimulation() {
+      const t = translations[currentLang];
+      
+      ctx.fillStyle = '#f8fafc';
+      ctx.strokeStyle = '#334155';
+      ctx.lineWidth = 4;
+
+      ctx.beginPath();
+      ctx.moveTo(220, 100);
+      ctx.lineTo(440, 100);
+      ctx.lineTo(440, 360);
+      ctx.lineTo(660, 360);
+      ctx.lineTo(660, 440);
+      ctx.lineTo(360, 440);
+      ctx.lineTo(360, 180);
+      ctx.lineTo(220, 180);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+
+      drawMirrorSegment(360, 100, 440, 180);
+      drawMirrorSegment(360, 360, 440, 440);
+
+      const objX = 140, objY = 140;
+      drawCustomApple(objX, objY, false, false, 1.0);
+
+      const midImgX = 400, midImgY = 270;
+      drawCustomApple(midImgX, midImgY, true, true, 0.75); 
+
+      const imgX = 810, imgY = 400;
+      drawCustomApple(imgX, imgY, false, false, 1.0);
+
+      const ray1Y = objY - 8;
+      const ray2Y = objY + 8;
+
+      drawRealisticLightBeam(170, ray1Y, 392, ray1Y, '#16a34a');
+      drawRealisticLightBeam(170, ray2Y, 408, ray2Y, '#dc2626');
+
+      drawRealisticLightBeam(392, ray1Y, 392, 392, '#16a34a');
+      drawRealisticLightBeam(408, ray2Y, 408, 408, '#dc2626');
+
+      drawRealisticLightBeam(392, 392, 700, 392, '#16a34a');
+      drawRealisticLightBeam(408, 408, 700, 408, '#dc2626');
+
+      ctx.font = '38px serif';
+      ctx.fillText('👁️', 710, 412);
+
+      ctx.fillStyle = '#0f172a';
+      ctx.font = '600 13.5px "PingFang SC", sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(t.periConclusion, canvas.width / 2, 495);
+    }
+
+    function drawCustomApple(x, y, isFlipped, isTransparent, scale) {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.scale(scale, isFlipped ? -scale : scale);
+      if (isTransparent) ctx.globalAlpha = 0.55;
+
+      ctx.fillStyle = '#ef4444';
+      ctx.beginPath();
+      ctx.arc(-6, 0, 16, 0, Math.PI * 2);
+      ctx.arc(6, 0, 16, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = '#22c55e';
+      ctx.beginPath();
+      ctx.ellipse(-10, -16, 8, 4, -Math.PI / 4, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.strokeStyle = '#78350f';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(0, -10);
+      ctx.lineTo(0, -18);
+      ctx.stroke();
+
+      ctx.restore();
+    }
+
+    function drawMirrorSegment(x1, y1, x2, y2) {
+      ctx.strokeStyle = '#0284c7';
+      ctx.lineWidth = 8;
+      ctx.beginPath();
+      ctx.moveTo(x1, y1);
+      ctx.lineTo(x2, y2);
+      ctx.stroke();
+
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(x1 + 2, y1 + 2);
+      ctx.lineTo(x2 - 2, y2 - 2);
+      ctx.stroke();
+    }
+
+    function drawRealisticLightBeam(x1, y1, x2, y2, colorHex, label) {
+      ctx.save();
+
+      ctx.strokeStyle = colorHex;
+      ctx.lineWidth = 7;
+      ctx.globalAlpha = 0.25;
+      ctx.beginPath();
+      ctx.moveTo(x1, y1);
+      ctx.lineTo(x2, y2);
+      ctx.stroke();
+
+      ctx.lineWidth = 3;
+      ctx.globalAlpha = 0.85;
+      ctx.beginPath();
+      ctx.moveTo(x1, y1);
+      ctx.lineTo(x2, y2);
+      ctx.stroke();
+
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 1.2;
+      ctx.globalAlpha = 0.9;
+      ctx.beginPath();
+      ctx.moveTo(x1, y1);
+      ctx.lineTo(x2, y2);
+      ctx.stroke();
+
+      const dist = Math.hypot(x2 - x1, y2 - y1);
+      const angle = Math.atan2(y2 - y1, x2 - x1);
+      
+      const wavePos = (animProgress * dist);
+      const waveX1 = x1 + Math.cos(angle) * wavePos;
+      const waveY1 = y1 + Math.sin(angle) * wavePos;
+      const waveX2 = x1 + Math.cos(angle) * Math.min(wavePos + 35, dist);
+      const waveY2 = y1 + Math.sin(angle) * Math.min(wavePos + 35, dist);
+
+      if (wavePos < dist) {
+        const pulseGrad = ctx.createLinearGradient(waveX1, waveY1, waveX2, waveY2);
+        pulseGrad.addColorStop(0, 'rgba(255, 255, 255, 0)');
+        pulseGrad.addColorStop(0.5, 'rgba(255, 255, 255, 0.95)');
+        pulseGrad.addColorStop(1, 'rgba(255, 255, 255, 0)');
+
+        ctx.strokeStyle = pulseGrad;
+        ctx.lineWidth = 5;
+        ctx.beginPath();
+        ctx.moveTo(waveX1, waveY1);
+        ctx.lineTo(waveX2, waveY2);
+        ctx.stroke();
+      }
+
+      const midX = (x1 + x2) / 2;
+      const midY = (y1 + y2) / 2;
+      ctx.fillStyle = colorHex;
+      ctx.globalAlpha = 1.0;
+      ctx.beginPath();
+      ctx.moveTo(midX, midY);
+      ctx.lineTo(midX - 7 * Math.cos(angle - Math.PI / 6), midY - 7 * Math.sin(angle - Math.PI / 6));
+      ctx.lineTo(midX - 7 * Math.cos(angle + Math.PI / 6), midY - 7 * Math.sin(angle + Math.PI / 6));
+      ctx.closePath();
+      ctx.fill();
+
+      if (label) {
+        ctx.font = 'bold 12px sans-serif';
+        ctx.fillStyle = colorHex;
+        ctx.fillText(label, (x1 + x2) / 2 - 20, (y1 + y2) / 2 - 12);
+      }
+
+      ctx.restore();
+    }
+
+    animate();
+  </script>
+</body>
+</html>
